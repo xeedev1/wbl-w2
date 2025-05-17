@@ -56,18 +56,6 @@ Think of JavaScript as the engine of a car:
      alert("Welcome to JavaScript!");
      ```
 
-2. **Code Editor:**
-   - [Visual Studio Code](https://code.visualstudio.com/) (Recommended)
-     - Free and powerful
-     - Great extensions for JavaScript
-     - Built-in terminal and debugging tools
-   - [Sublime Text](https://www.sublimetext.com/)
-     - Lightweight and fast
-     - Great for beginners
-   - [WebStorm](https://www.jetbrains.com/webstorm/)
-     - Full-featured IDE
-     - Great for larger projects
-
 3. **Online Playgrounds:**
    - [CodePen](https://codepen.io/)
      - Perfect for sharing code snippets

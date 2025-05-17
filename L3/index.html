@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Basics Demo</title>
+    <style>
+        /* Basic CSS styling */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .demo-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .output {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Basics Demo</h1>
+
+    <!-- Variables and Data Types Section -->
+    <div class="demo-section">
+        <h2>1. Variables and Data Types</h2>
+        <button onclick="demoVariables()">Run Demo</button>
+        <div id="variablesOutput" class="output"></div>
+    </div>
+
+    <!-- Functions Section -->
+    <div class="demo-section">
+        <h2>2. Functions</h2>
+        <input type="text" id="nameInput" placeholder="Enter your name">
+        <button onclick="demoFunctions()">Run Demo</button>
+        <div id="functionsOutput" class="output"></div>
+    </div>
+
+    <!-- Loops Section -->
+    <div class="demo-section">
+        <h2>3. Loops</h2>
+        <button onclick="demoLoops()">Run Demo</button>
+        <div id="loopsOutput" class="output"></div>
+    </div>
+
+    <!-- Arrays and Objects Section -->
+    <div class="demo-section">
+        <h2>4. Arrays and Objects</h2>
+        <button onclick="demoArraysAndObjects()">Run Demo</button>
+        <div id="arraysOutput" class="output"></div>
+    </div>
+
+    <!-- DOM Manipulation Section -->
+    <div class="demo-section">
+        <h2>5. DOM Manipulation</h2>
+        <button onclick="changeColor()">Change Color</button>
+        <button onclick="addElement()">Add Element</button>
+        <div id="domOutput" class="output">Click the buttons to see DOM manipulation in action!</div>
+    </div>
+
+    <!-- Events Section -->
+    <div class="demo-section">
+        <h2>6. Events</h2>
+        <div id="eventBox" style="width: 200px; height: 100px; background-color: #eee; margin: 10px 0;">
+            Hover over me!
+        </div>
+        <div id="eventsOutput" class="output"></div>
+    </div>
+
+    <!-- Forms Section -->
+    <div class="demo-section">
+        <h2>7. Forms</h2>
+        <form id="demoForm" onsubmit="return handleForm(event)">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="formOutput" class="output"></div>
+    </div>
+
+    <script>
+        // Utility function for output
+        function logToOutput(sectionId, message) {
+            const output = document.getElementById(sectionId);
+            output.innerHTML += `<div>${message}</div>`;
+        }
+
+        // 1. Variables and Data Types Demo
+        function demoVariables() {
+            const output = document.getElementById('variablesOutput');
+            output.innerHTML = ''; // Clear previous output
+
+            // String
+            let name = "John";
+            logToOutput('variablesOutput', `String: ${name}`);
+
+            // Number
+            const age = 25;
+            logToOutput('variablesOutput', `Number: ${age}`);
+
+            // Boolean
+            let isStudent = true;
+            logToOutput('variablesOutput', `Boolean: ${isStudent}`);
+
+            // Array
+            let hobbies = ["reading", "coding", "gaming"];
+            logToOutput('variablesOutput', `Array: ${hobbies.join(', ')}`);
+
+            // Object
+            let person = {
+                name: "John",
+                age: 25,
+                isStudent: true
+            };
+            logToOutput('variablesOutput', `Object: ${JSON.stringify(person)}`);
+
+            // Type Coercion
+            logToOutput('variablesOutput', `Type Coercion: "5" + 3 = ${"5" + 3}`);
+            logToOutput('variablesOutput', `Type Coercion: "5" - 3 = ${"5" - 3}`);
+        }
+
+        // 2. Functions Demo
+        function demoFunctions() {
+            const output = document.getElementById('functionsOutput');
+            output.innerHTML = '';
+
+            // Basic Function
+            function greet(name) {
+                return `Hello, ${name}!`;
+            }
+
+            // Arrow Function
+            const greetArrow = (name) => `Hello, ${name}!`;
+
+            // Function with Default Parameters
+            function createUser(name, age = 20) {
+                return { name, age };
+            }
+
+            const name = document.getElementById('nameInput').value || 'Guest';
+            
+            logToOutput('functionsOutput', greet(name));
+            logToOutput('functionsOutput', greetArrow(name));
+            logToOutput('functionsOutput', `User: ${JSON.stringify(createUser(name))}`);
+        }
+
+        // 3. Loops Demo
+        function demoLoops() {
+            const output = document.getElementById('loopsOutput');
+            output.innerHTML = '';
+
+            // For Loop
+            logToOutput('loopsOutput', 'For Loop:');
+            for (let i = 0; i < 3; i++) {
+                logToOutput('loopsOutput', `Count: ${i}`);
+            }
+
+            // While Loop
+            logToOutput('loopsOutput', 'While Loop:');
+            let count = 0;
+            while (count < 3) {
+                logToOutput('loopsOutput', `Count: ${count}`);
+                count++;
+            }
+
+            // For...of Loop
+            const fruits = ["apple", "banana", "orange"];
+            logToOutput('loopsOutput', 'For...of Loop:');
+            for (const fruit of fruits) {
+                logToOutput('loopsOutput', `Fruit: ${fruit}`);
+            }
+        }
+
+        // 4. Arrays and Objects Demo
+        function demoArraysAndObjects() {
+            const output = document.getElementById('arraysOutput');
+            output.innerHTML = '';
+
+            // Array Methods
+            const numbers = [1, 2, 3, 4, 5];
+            
+            // Map
+            const doubled = numbers.map(n => n * 2);
+            logToOutput('arraysOutput', `Map: ${doubled.join(', ')}`);
+
+            // Filter
+            const evenNumbers = numbers.filter(n => n % 2 === 0);
+            logToOutput('arraysOutput', `Filter: ${evenNumbers.join(', ')}`);
+
+            // Object Methods
+            const person = {
+                name: "John",
+                age: 30,
+                city: "New York"
+            };
+
+            logToOutput('arraysOutput', `Object Keys: ${Object.keys(person).join(', ')}`);
+            logToOutput('arraysOutput', `Object Values: ${Object.values(person).join(', ')}`);
+        }
+
+        // 5. DOM Manipulation Demo
+        function changeColor() {
+            const output = document.getElementById('domOutput');
+            output.style.backgroundColor = 
+                output.style.backgroundColor === 'lightblue' ? '#f5f5f5' : 'lightblue';
+        }
+
+        function addElement() {
+            const output = document.getElementById('domOutput');
+            const newElement = document.createElement('div');
+            newElement.textContent = 'New element added!';
+            output.appendChild(newElement);
+        }
+
+        // 6. Events Demo
+        const eventBox = document.getElementById('eventBox');
+        const eventsOutput = document.getElementById('eventsOutput');
+
+        eventBox.addEventListener('mouseover', () => {
+            eventBox.style.backgroundColor = 'lightgreen';
+            logToOutput('eventsOutput', 'Mouse over!');
+        });
+
+        eventBox.addEventListener('mouseout', () => {
+            eventBox.style.backgroundColor = '#eee';
+            logToOutput('eventsOutput', 'Mouse out!');
+        });
+
+        // 7. Forms Demo
+        function handleForm(event) {
+            event.preventDefault();
+            const output = document.getElementById('formOutput');
+            output.innerHTML = '';
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+
+            // Form validation
+            if (username.length < 3) {
+                logToOutput('formOutput', 'Username must be at least 3 characters long');
+                return false;
+            }
+
+            if (!email.includes('@')) {
+                logToOutput('formOutput', 'Please enter a valid email address');
+                return false;
+            }
+
+            logToOutput('formOutput', `Form submitted successfully!`);
+            logToOutput('formOutput', `Username: ${username}`);
+            logToOutput('formOutput', `Email: ${email}`);
+
+            return false;
+        }
+
+        // Debugging example
+        console.log('App initialized');
+        console.time('App Load');
+        // ... app initialization code ...
+        console.timeEnd('App Load');
+    </script>
+</body>
+</html> 
