@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Catch Me If You Can!</title>
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    #sneaky {
+      padding: 1em 2em;
+      font-size: 18px;
+      position: absolute;
+      cursor: pointer;
+      background-color: hotpink;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <button id="sneaky">Click Me 😈</button>
+
+  <script>
+    const button = document.getElementById("sneaky");
+
+    button.addEventListener("mouseenter", () => {
+      const x = Math.random() * (window.innerWidth - button.offsetWidth);
+      const y = Math.random() * (window.innerHeight - button.offsetHeight);
+      button.style.left = `${x}px`;
+      button.style.top = `${y}px`;
+    });
+
+    button.addEventListener("click", () => {
+      alert("Whoa! You actually caught me! 🥳");
+    });
+  </script>
+
+</body>
+</html>

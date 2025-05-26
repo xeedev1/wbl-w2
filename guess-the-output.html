@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Output – JavaScript Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5e9da 0%, #ffe4b5 100%);
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #fffbe6;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      padding: 32px 24px 24px 24px;
+    }
+    h1 {
+      text-align: center;
+      color: #a0522d;
+      margin-bottom: 0.5em;
+      letter-spacing: 1px;
+    }
+    .question {
+      margin-bottom: 2em;
+      padding: 1em;
+      border-radius: 10px;
+      background: #f9f6f2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    pre {
+      background: #222;
+      color: #b5e853;
+      padding: 1em;
+      border-radius: 8px;
+      font-size: 1em;
+      overflow-x: auto;
+    }
+    input[type="text"] {
+      font-size: 1em;
+      padding: 0.5em;
+      border-radius: 6px;
+      border: 1px solid #deb887;
+      background: #fff8e1;
+      color: #a0522d;
+      margin-right: 1em;
+      width: 180px;
+    }
+    button {
+      font-size: 1em;
+      padding: 0.5em 1em;
+      border-radius: 6px;
+      border: none;
+      background: #deb887;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #a0522d;
+    }
+    .feedback {
+      margin-top: 0.5em;
+      font-weight: bold;
+    }
+    .correct {
+      color: #388e3c;
+    }
+    .incorrect {
+      color: #c62828;
+    }
+    .output {
+      color: #1976d2;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      margin-top: 0.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Guess the Output!</h1>
+    <form id="quizForm" autocomplete="off">
+      <div class="question" data-answer="undefined">
+        <div><b>1. What is the output?</b></div>
+        <pre>console.log(a);
+var a = 5;</pre>
+        <input type="text" placeholder="Your answer...">
+        <span class="feedback"></span>
+        <div class="output" style="display:none;"></div>
+      </div>
+      <div class="question" data-answer="20,10">
+        <div><b>2. What is the output?</b></div>
+        <pre>let x = 10;
+function test() {
+  let x = 20;
+  console.log(x);
+}
+test();
+console.log(x);</pre>
+        <input type="text" placeholder="Your answer...">
+        <span class="feedback"></span>
+        <div class="output" style="display:none;"></div>
+      </div>
+      <div class="question" data-answer="52,3,10">
+        <div><b>3. What is the output?</b></div>
+        <pre>console.log("5" + 2);
+console.log("5" - 2);
+console.log("5" * "2");</pre>
+        <input type="text" placeholder="Your answer...">
+        <span class="feedback"></span>
+        <div class="output" style="display:none;"></div>
+      </div>
+      <div class="question" data-answer="4,3">
+        <div><b>4. What is the output?</b></div>
+        <pre>const arr = [1, 2, 3];
+arr.push(4);
+console.log(arr.length);
+arr.pop();
+console.log(arr[arr.length - 1]);</pre>
+        <input type="text" placeholder="Your answer...">
+        <span class="feedback"></span>
+        <div class="output" style="display:none;"></div>
+      </div>
+      <button type="button" id="checkBtn">Check Answers</button>
+      <button type="button" id="showBtn" style="margin-left:1em;">Show All Outputs</button>
+    </form>
+  </div>
+  <script>
+    // Answers for each question (as string, comma-separated for multi-line)
+    const outputs = [
+      'undefined',
+      '20,10',
+      '52,3,10',
+      '4,3'
+    ];
+    const explanations = [
+      'var declarations are hoisted, but not their values. So a is undefined at the time of the log.',
+      'The function logs 20 (local x), then the global x is 10.',
+      '"5" + 2 is "52" (string), "5" - 2 is 3 (number), "5" * "2" is 10 (number).',
+      'arr.push(4) makes length 4, arr.pop() removes 4, so last element is 3.'
+    ];
+    document.getElementById('checkBtn').onclick = function() {
+      document.querySelectorAll('.question').forEach((q, i) => {
+        const input = q.querySelector('input');
+        const feedback = q.querySelector('.feedback');
+        const user = input.value.replace(/\s+/g, '').toLowerCase();
+        const answer = outputs[i].replace(/\s+/g, '').toLowerCase();
+        if (user === answer) {
+          feedback.textContent = '✔ Correct!';
+          feedback.className = 'feedback correct';
+        } else {
+          feedback.textContent = '✘ Incorrect.';
+          feedback.className = 'feedback incorrect';
+        }
+      });
+    };
+    document.getElementById('showBtn').onclick = function() {
+      document.querySelectorAll('.question').forEach((q, i) => {
+        const output = q.querySelector('.output');
+        output.style.display = 'block';
+        output.innerHTML = `<b>Output:</b> ${outputs[i]}<br><i>${explanations[i]}</i>`;
+      });
+    };
+  </script>
+</body>
+</html> 

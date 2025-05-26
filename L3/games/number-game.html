@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+        }
+
+        .game-info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e8f0fe;
+            border-radius: 4px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid #1a73e8;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 100px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: #e6f4ea;
+            color: #137333;
+        }
+
+        .error {
+            background-color: #fce8e6;
+            color: #c5221f;
+        }
+
+        .hint {
+            background-color: #fef7e0;
+            color: #b06000;
+        }
+
+        .history {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .history-item {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Number Guessing Game</h1>
+        
+        <div class="game-info">
+            <p>I'm thinking of a number between 1 and 100.</p>
+            <p>Can you guess it?</p>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="guessInput" min="1" max="100" placeholder="Enter guess">
+            <button id="guessButton">Guess</button>
+            <button id="newGameButton">New Game</button>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="history">
+            <h3>Your Guesses:</h3>
+            <div id="guessHistory"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game state variables
+        let targetNumber;
+        let attempts;
+        let gameOver;
+        let guessHistory;
+
+        // DOM Elements
+        const guessInput = document.getElementById('guessInput');
+        const guessButton = document.getElementById('guessButton');
+        const newGameButton = document.getElementById('newGameButton');
+        const messageDiv = document.getElementById('message');
+        const guessHistoryDiv = document.getElementById('guessHistory');
+
+        // Initialize the game
+        function initGame() {
+            // Generate random number between 1 and 100
+            targetNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            gameOver = false;
+            guessHistory = [];
+
+            // Reset UI
+            guessInput.value = '';
+            messageDiv.textContent = '';
+            messageDiv.className = 'message';
+            guessHistoryDiv.innerHTML = '';
+            guessButton.disabled = false;
+            guessInput.disabled = false;
+
+            // Log game start
+            console.log('New game started. Target number:', targetNumber);
+        }
+
+        // Handle guess submission
+        function handleGuess() {
+            // Get and validate input
+            const guess = parseInt(guessInput.value);
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                showMessage('Please enter a valid number between 1 and 100', 'error');
+                return;
+            }
+
+            // Increment attempts
+            attempts++;
+
+            // Add to history
+            guessHistory.push(guess);
+            updateHistory();
+
+            // Check guess
+            if (guess === targetNumber) {
+                handleWin();
+            } else {
+                handleWrongGuess(guess);
+            }
+
+            // Clear input
+            guessInput.value = '';
+        }
+
+        // Handle correct guess
+        function handleWin() {
+            gameOver = true;
+            showMessage(`Congratulations! You found the number in ${attempts} attempts!`, 'success');
+            guessButton.disabled = true;
+            guessInput.disabled = true;
+        }
+
+        // Handle wrong guess
+        function handleWrongGuess(guess) {
+            const difference = Math.abs(targetNumber - guess);
+            let message = '';
+            let messageClass = 'hint';
+
+            if (difference <= 5) {
+                message = 'Very hot!';
+            } else if (difference <= 10) {
+                message = 'Hot!';
+            } else if (difference <= 20) {
+                message = 'Warm';
+            } else if (difference <= 30) {
+                message = 'Cold';
+            } else {
+                message = 'Very cold!';
+            }
+
+            message += guess < targetNumber ? ' (Try higher)' : ' (Try lower)';
+            showMessage(message, messageClass);
+        }
+
+        // Show message to user
+        function showMessage(text, className) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${className}`;
+        }
+
+        // Update guess history
+        function updateHistory() {
+            guessHistoryDiv.innerHTML = guessHistory
+                .map((guess, index) => `
+                    <div class="history-item">
+                        Attempt ${index + 1}: ${guess}
+                        ${guess === targetNumber ? ' ✓' : ''}
+                    </div>
+                `)
+                .join('');
+        }
+
+        // Event Listeners
+        guessButton.addEventListener('click', handleGuess);
+        newGameButton.addEventListener('click', initGame);
+        guessInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handleGuess();
+            }
+        });
+
+        // Start the game
+        initGame();
+
+        // Debug information
+        console.log('Game initialized');
+        console.time('Game Setup');
+        // ... game setup code ...
+        console.timeEnd('Game Setup');
+    </script>
+</body>
+</html> 

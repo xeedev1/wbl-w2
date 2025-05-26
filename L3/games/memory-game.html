@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            /* Subtle wood texture background */
+            background: url('https://www.transparenttextures.com/patterns/wood-pattern.png'), #b58863;
+        }
+        .card {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            perspective: 600px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card.flipped .card-inner,
+        .card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+        }
+        .card-front {
+            background: linear-gradient(135deg, #deb887 60%, #a0522d 100%);
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.15);
+            color: #7c4a03;
+            font-size: 2.5rem;
+        }
+        .card-back {
+            background: linear-gradient(135deg, #f5deb3 60%, #c19a6b 100%);
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.15);
+            color: #7c4a03;
+            font-size: 2.5rem;
+            transform: rotateY(180deg);
+        }
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Game Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-yellow-900 mb-2" style="text-shadow: 1px 1px 0 #fffbe6;">Memory Card Game</h1>
+            <div class="flex justify-center gap-4 text-yellow-900">
+                <div class="bg-yellow-100/80 rounded-lg px-4 py-2">
+                    <span class="font-semibold">Moves:</span>
+                    <span id="moves" class="ml-2">0</span>
+                </div>
+                <div class="bg-yellow-100/80 rounded-lg px-4 py-2">
+                    <span class="font-semibold">Time:</span>
+                    <span id="timer" class="ml-2">0s</span>
+                </div>
+                <div class="bg-yellow-100/80 rounded-lg px-4 py-2">
+                    <span class="font-semibold">Score:</span>
+                    <span id="score" class="ml-2">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Controls -->
+        <div class="flex justify-center gap-4 mb-8">
+            <button id="startGame" class="bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-800 transition-colors shadow">
+                <i class="fas fa-play mr-2"></i>New Game
+            </button>
+            <button id="showRules" class="bg-yellow-100/80 text-yellow-900 px-6 py-2 rounded-lg font-semibold hover:bg-yellow-200 transition-colors shadow">
+                <i class="fas fa-info-circle mr-2"></i>Rules
+            </button>
+        </div>
+
+        <!-- Game Board -->
+        <div id="gameBoard" class="grid grid-cols-4 gap-4 max-w-2xl mx-auto">
+            <!-- Cards will be inserted here -->
+        </div>
+
+        <!-- Rules Modal -->
+        <div id="rulesModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="bg-yellow-50 rounded-lg p-6 max-w-md mx-4 border-4 border-yellow-700">
+                <h2 class="text-2xl font-bold text-yellow-900 mb-4">How to Play</h2>
+                <ul class="list-disc list-inside space-y-2 text-yellow-900">
+                    <li>Click on any card to flip it</li>
+                    <li>Find matching pairs of cards</li>
+                    <li>Complete the game in the shortest time</li>
+                    <li>Try to use the fewest moves possible</li>
+                </ul>
+                <button id="closeRules" class="mt-6 bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-800 transition-colors">
+                    Got it!
+                </button>
+            </div>
+        </div>
+
+        <!-- Win Modal -->
+        <div id="winModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="bg-yellow-50 rounded-lg p-6 max-w-md mx-4 text-center border-4 border-yellow-700">
+                <h2 class="text-3xl font-bold text-yellow-900 mb-4">Congratulations! 🎉</h2>
+                <p class="text-yellow-900 mb-4">You completed the game!</p>
+                <div class="space-y-2 mb-6">
+                    <p>Time: <span id="finalTime" class="font-semibold"></span></p>
+                    <p>Moves: <span id="finalMoves" class="font-semibold"></span></p>
+                    <p>Score: <span id="finalScore" class="font-semibold"></span></p>
+                </div>
+                <button id="playAgain" class="bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-800 transition-colors">
+                    Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let cards = [];
+        let flippedCards = [];
+        let moves = 0;
+        let score = 0;
+        let timer = 0;
+        let timerInterval;
+        let gameStarted = false;
+
+        // Emojis for cards
+        const emojis = ['🎮', '🎲', '🎯', '🎨', '🎭', '🎪', '🎢', '🎡'];
+
+        // DOM Elements
+        const gameBoard = document.getElementById('gameBoard');
+        const movesDisplay = document.getElementById('moves');
+        const timerDisplay = document.getElementById('timer');
+        const scoreDisplay = document.getElementById('score');
+        const startButton = document.getElementById('startGame');
+        const showRulesButton = document.getElementById('showRules');
+        const rulesModal = document.getElementById('rulesModal');
+        const closeRulesButton = document.getElementById('closeRules');
+        const winModal = document.getElementById('winModal');
+        const playAgainButton = document.getElementById('playAgain');
+
+        // Initialize game
+        function initGame() {
+            // Reset game state
+            cards = [];
+            flippedCards = [];
+            moves = 0;
+            score = 0;
+            timer = 0;
+            gameStarted = false;
+            clearInterval(timerInterval);
+
+            // Update displays
+            updateDisplays();
+
+            // Create cards
+            const cardPairs = [...emojis, ...emojis];
+            shuffleArray(cardPairs);
+
+            // Clear and create game board
+            gameBoard.innerHTML = '';
+            cardPairs.forEach((emoji, index) => {
+                const card = createCard(emoji, index);
+                gameBoard.appendChild(card);
+                cards.push(card);
+            });
+        }
+
+        // Create a card element
+        function createCard(emoji, index) {
+            const card = document.createElement('div');
+            card.className = 'card aspect-square cursor-pointer';
+            card.dataset.index = index;
+            card.dataset.emoji = emoji;
+            card.innerHTML = `
+                <div class="card-inner w-full h-full">
+                    <div class="card-front flex items-center justify-center w-full h-full text-4xl">
+                        <i class="fas fa-question"></i>
+                    </div>
+                    <div class="card-back flex items-center justify-center w-full h-full text-4xl">
+                        ${emoji}
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', () => handleCardClick(card));
+            return card;
+        }
+
+        // Handle card click
+        function handleCardClick(card) {
+            if (!gameStarted) {
+                startGame();
+            }
+            if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+                card.classList.add('flipped');
+                flippedCards.push(card);
+                if (flippedCards.length === 2) {
+                    moves++;
+                    updateDisplays();
+                    checkMatch();
+                }
+            }
+        }
+
+        // Check for match
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            const match = card1.dataset.emoji === card2.dataset.emoji;
+            if (match) {
+                handleMatch(card1, card2);
+            } else {
+                handleMismatch(card1, card2);
+            }
+        }
+
+        // Handle matching cards
+        function handleMatch(card1, card2) {
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            score += 10;
+            updateDisplays();
+            [card1, card2].forEach(card => {
+                card.classList.add('celebrate');
+                setTimeout(() => card.classList.remove('celebrate'), 500);
+            });
+            flippedCards = [];
+            checkWin();
+        }
+
+        // Handle mismatched cards
+        function handleMismatch(card1, card2) {
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                flippedCards = [];
+            }, 1000);
+        }
+
+        // Check for win
+        function checkWin() {
+            const allMatched = cards.every(card => card.classList.contains('matched'));
+            if (allMatched) {
+                endGame();
+            }
+        }
+
+        // Start game
+        function startGame() {
+            gameStarted = true;
+            timerInterval = setInterval(() => {
+                timer++;
+                updateDisplays();
+            }, 1000);
+        }
+
+        // End game
+        function endGame() {
+            clearInterval(timerInterval);
+            setTimeout(() => {
+                document.getElementById('finalTime').textContent = `${timer}s`;
+                document.getElementById('finalMoves').textContent = moves;
+                document.getElementById('finalScore').textContent = score;
+                winModal.classList.remove('hidden');
+                winModal.classList.add('flex');
+            }, 500);
+        }
+
+        // Update displays
+        function updateDisplays() {
+            movesDisplay.textContent = moves;
+            timerDisplay.textContent = `${timer}s`;
+            scoreDisplay.textContent = score;
+        }
+
+        // Utility function to shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', initGame);
+        showRulesButton.addEventListener('click', () => {
+            rulesModal.classList.remove('hidden');
+            rulesModal.classList.add('flex');
+        });
+        closeRulesButton.addEventListener('click', () => {
+            rulesModal.classList.add('hidden');
+            rulesModal.classList.remove('flex');
+        });
+        playAgainButton.addEventListener('click', () => {
+            winModal.classList.add('hidden');
+            winModal.classList.remove('flex');
+            initGame();
+        });
+
+        // Initialize game on load
+        initGame();
+    </script>
+</body>
+</html> 
